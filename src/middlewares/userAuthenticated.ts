@@ -4,7 +4,7 @@ import authConfig from '../config/auth';
 
 import AppError from '../shared/error/AppError';
 
-interface ITokenPlayload {
+interface ITokenPayload {
     firstName: string;
     lastName: string;
     iat: number;
@@ -17,8 +17,6 @@ export default function userAuthenticated(
     res: Response,
     next: NextFunction,
 ): void {
-    // Validação do token JWT
-
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -30,16 +28,16 @@ export default function userAuthenticated(
     try {
         const decoded = verify(token, authConfig.jwt.secret);
 
-        const { sub, firstName, lastName } = decoded as ITokenPlayload;
+        const { sub, firstName, lastName } = decoded as ITokenPayload;
 
         req.user = {
             id: sub,
             firstName,
             lastName
-        };
+        }
 
         return next();
-    } catch {
+    } catch (error) {
         throw new AppError('token JWT inválido', 401);
     }
 }
